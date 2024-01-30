@@ -4,21 +4,20 @@ import java.util.Stack;
 
 public class GameLogic implements PlayableLogic{
     private Board board;
-    Stack<MoveObj> history;
-    private ConcretePlayer player1, player2;
-    private boolean king_captured, king_cornner, first_player_turn;
-
+    private Stack<MoveObj> history;
+    private final ConcretePlayer player1, player2;
+    private boolean king_captured, king_corner, first_player_turn;
     GameLogic(){
         this.player1= new ConcretePlayer(true);
         this.player2= new ConcretePlayer(false);
-        this.king_captured=false;this.king_cornner=false;
+        this.king_captured=false;this.king_corner=false;
         this.reset();
     }
     public boolean move(Position a, Position b) {
         //is the move legal?
-        if(!empty_stright_path(a,b))return false;
+        if(!empty_straight_path(a,b))return false;
         ConcertePiece PieceIn_a=this.board.getPiece_pos(a);
-        if((!Objects.equals(PieceIn_a.getType(), "♔")) & b.is_cornner())return false;
+        if((!Objects.equals(PieceIn_a.getType(), "♔")) & b.is_corner())return false;
         if (PieceIn_a.getOwner()==this.player1 & first_player_turn)return false;
         if (PieceIn_a.getOwner()==this.player2 & !first_player_turn)return false;
         if(PieceIn_a==null)return false;
@@ -31,7 +30,7 @@ public class GameLogic implements PlayableLogic{
         //check all captures and build String[] captured
         //if king
         if(PieceIn_a instanceof King){
-            if(b.is_cornner()){this.king_cornner=true;}
+            if(b.is_corner()){this.king_corner=true;}
             this.history.add(new MoveObj(new String[4],a,b));return true;
         }
         //else
@@ -52,11 +51,11 @@ public class GameLogic implements PlayableLogic{
         if(names_captured[3]!=null & x_b!=0)this.board.remove(new Position(x_b-1,y_b));
         //Create MoveObj and change turn
         this.history.add(new MoveObj(names_captured,a,b));
-        if(this.king_captured){player2.victory();this.print_analitics(player2);}
-        if(this.king_cornner){player1.victory();this.print_analitics(player1);}
+        if(this.king_captured){player2.victory();this.print_analytics(player2);}
+        if(this.king_corner){player1.victory();this.print_analytics(player1);}
         return true;
     }
-    private boolean empty_stright_path(Position p1,Position p2){
+    private boolean empty_straight_path(Position p1, Position p2){
         int x1=p1.getX(), x2= p2.getX(), y1=p1.getY(), y2=p2.getY();
         if(x1==x2 & y1==y2)return false;
         if(x1!=x2 & y1!=y2)return false;
@@ -82,7 +81,7 @@ public class GameLogic implements PlayableLogic{
             if(pos_y+vecY<0 || pos_y+vecY>10)return piece.getName();
             if(this.board.getPiece_XY(pos_x+vecX,pos_y+vecY)!=null){if(this.board.getPiece_XY(pos_x+vecX,pos_y+vecY).getOwner()!=piece.getOwner() & (!(this.board.getPiece_XY(pos_x+vecX,pos_y+vecY) instanceof King)))return piece.getName();}
             Position corner_suspect = new Position(pos_x+vecX,pos_y+vecY);
-            if(corner_suspect.is_cornner()){
+            if(corner_suspect.is_corner()){
                 Position suspect_position_for_pawn=null;
                 if (vecY==0 & pos_y==0)suspect_position_for_pawn=new Position(pos_x+vecX,pos_y+vecY+1);
                 if (vecY==0 & pos_y==10)suspect_position_for_pawn=new Position(pos_x+vecX,pos_y+vecY-1);
@@ -101,21 +100,21 @@ public class GameLogic implements PlayableLogic{
     public Piece getPieceAtPosition(Position position){return board.getPiece_pos(position);}
     public Player getFirstPlayer() {return this.player1;}
     public Player getSecondPlayer() {return this.player2;}
-    public boolean isGameFinished() {return(this.king_captured||this.king_cornner);}
+    public boolean isGameFinished() {return(this.king_captured||this.king_corner);}
     public boolean isSecondPlayerTurn() {
         return !this.first_player_turn;
     }
     public void reset() {
         this.king_captured=false;
-        this.king_cornner=false;
+        this.king_corner=false;
         this.first_player_turn=true;
         this.board=new Board(this.player1, this.player2);
-        this.history = new Stack<MoveObj>();
+        this.history = new Stack<>();
     }
     @Override
     public void undoLastMove() {
         //initial definitions and checks
-        if(this.history.size()==0)return;
+        if(this.history.isEmpty())return;
         this.first_player_turn=!this.first_player_turn;
         MoveObj last_move = this.history.pop();
         String[] captured=last_move.getCaptures();
@@ -132,7 +131,7 @@ public class GameLogic implements PlayableLogic{
         if(captured[3]!=null){this.board.putPiece(this.board.getPiece_name(captured[3]),new Position(to.getX()-1,to.getY()));piece_moved.kill(-1);}
     }
     public int getBoardSize() {return 11;}
-    private void print_analitics(ConcretePlayer winner){
+    private void print_analytics(ConcretePlayer winner){
         ConcertePiece[] all_pieces = this.board.get_all_pieces();
         //print pieces history
         Arrays.sort(all_pieces, new Comperators(winner,"history"));

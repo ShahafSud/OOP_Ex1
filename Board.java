@@ -1,8 +1,8 @@
 import java.util.HashMap;
 
 public class Board {
-    private Position[][] board;
-    private HashMap<String,ConcertePiece> all_pieces;
+    private final Position[][] board;
+    private final HashMap<String,ConcertePiece> all_pieces;
     private void set_new_game(ConcretePlayer P1,ConcretePlayer P2){
         int[][] locations_2 ={{3,0,1},{4,0,2},{5,0,3},{6,0,4},{7,0,5},{5,1,6},{0,3,7},
                 {10,3,8},{0,4,9},{10,4,10},{0,5,11},{1,5,12},{9,5,13},{10,5,14},{0,6,15},
@@ -42,7 +42,7 @@ public class Board {
                 this.board[i][j] = new Position(i, j);
             }
         }
-        this.all_pieces=new HashMap<String,ConcertePiece>();
+        this.all_pieces=new HashMap<>();
         set_new_game(P1, P2);
     }
     public void putPiece(ConcertePiece p, Position pos){this.board[pos.getX()][pos.getY()].setPiece(p);}

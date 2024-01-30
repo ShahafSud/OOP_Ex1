@@ -1,5 +1,3 @@
-import java.util.LinkedList;
-
 public class MoveObj {
     private final String[] captures;private final Position from;private final Position to;
 
